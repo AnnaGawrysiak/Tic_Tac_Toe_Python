@@ -1,5 +1,5 @@
 import sys
-
+import random
 
 SIGN_CROSS = 'X'
 SIGN_CIRCLE = 'O'
@@ -100,21 +100,72 @@ class Game:
     def __init__(self):
         pass
 
-    def _make_a_move(self, current_player):
-        print(f"Player {current_player.name} : tell me which field on a board should be marked.")
-        field_nr = input("Enter field number: ")
-        Board.insert(field_nr, current_player.sign)
-        Board.print_board()
+    def _make_a_move(self, current_player, b1):
+        print(f"Player {current_player.name} : tell me which field on a board should be marked .")
+        field_nr = input("Enter field number (1 to 9): ")
+        b1.insert(field_nr, current_player.sign)
+        b1.print_board()
+
+
+
+    def _AI_move(self, b1):
+        possible_moves = [key for (key, value) in b1 if value != SIGN_EMPTY]
+
+        for i in possible_moves:
+            b1[i] = SIGN_CROSS
+            if b1.check_for_win(SIGN_CROSS):
+                return i
+            b1[i] = SIGN_CIRCLE
+            if b1.check_for_win(SIGN_CROSS):
+                return i
+            b1[i] = SIGN_EMPTY
+
+        corners_open = []
+
+        if i in possible_moves:
+            if i in [1, 3, 7, 9]:
+                corners_open.append(i)
+
+        if len(corners_open) > 0:
+            return random.choice(corners_open)
+
+        if 5 in possible_moves:
+            return 5
+
+        edges_open = []
+        for i in possible_moves:
+            if i in [2, 4, 6, 8]:
+                edges_open.append(i)
+
+        if len(edges_open) > 0:
+            move = random.choice(edges_open)
+
+        b1.print_board()
 
     def run(self):
+        b1 = Board()
         print("Welcome to the Tic Tac Toe Game.")
+        choice = input("Select game mode. Press '1' for single player mode and '2' for two players mode.")
+
+        while choice != 1 and choice != 2:
+            print("Wrong input.")
+            choice = input("Select game mode. Press '1' for single player mode and '2' for two players mode.")
+
         name1 = input("Player 1. Please enter your name: ")
         player1 = Player(name1, SIGN_CROSS)
-        name2 = input("Player 2. Please enter your name: ")
-        player2 = Player(name2, SIGN_CIRCLE)
+        print(f"Player {name1}: your sign is a cross.\n" )
 
-        while True:
-            self._make_a_move()
+        if choice == 2:
+            name2 = input("Player 2. Please enter your name: ")
+            player2 = Player(name2, SIGN_CIRCLE)
+            print(f"Player {name2}: your sign is a circle.\n")
+            while True:
+                self._make_a_move(player1, b1)
+                self._make_a_move(player2, b1)
+        elif choice == 1:
+            self._make_a_move(player1)
+            self._AI_move(b1)
+
 
 # Game().run()
 
@@ -123,9 +174,6 @@ class Game:
 
 #
 #
-b1 = Board()
-b1.insert(2, SIGN_CROSS)
-print(b1)
 
 # b1.print()
 
@@ -136,5 +184,4 @@ print(b1)
 
 
 def main():
-    game = Game()
-    game.run()
+    Game().run()
