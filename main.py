@@ -82,6 +82,10 @@ class ComputerPlayer(Player):
     def sign(self):
         return self._sign
 
+    @property
+    def name(self):
+        return self._name
+
 class OccupiedFieldError(Exception):
     pass
 
@@ -154,13 +158,17 @@ class Game:
 
     def run(self):
         player = self._player1
+        print(self._board)
         while True:
-            print(self._board)
             pos = player.get_position(self._board)
             self._board.insert(pos, player.sign)
+            print(f"The board after {player.name} move: ")
+            print(self._board)
             if self._board.check_for_win(player.sign):
+                print(f"Congratulations {player.name}! You are the winner.")
                 return player
             elif self._board.is_full():
+                print("The board is full.")
                 return None
             if player is self._player1:
                 player = self._player2
