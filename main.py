@@ -1,4 +1,5 @@
 import random
+from collections import namedtuple
 
 SIGN_CROSS = 'X'
 SIGN_CIRCLE = 'O'
@@ -28,6 +29,12 @@ class HumanPlayer(Player):
         print(f"Player {self._name} : tell me which field on a board should be marked .")
         field_nr = input("Enter field number (1 to 9): ")
         position = int(field_nr) - 1
+        while(position < 1 or position > 9):
+            field_nr = input("Such field number does not exist on the board. Enter field number (1 to 9): ")
+            position = int(field_nr) - 1
+        while (b1.board[position] != SIGN_EMPTY):
+            field_nr = input("Field has already been already occupied. Enter different field number (1 to 9): ")
+            position = int(field_nr) - 1
         return position
 
 
@@ -38,13 +45,13 @@ class ComputerPlayer(Player):
         self._sign = SIGN_CIRCLE
 
     def get_position(self, b1):
-        possible_moves = [key for (key, value) in b1 if value != SIGN_EMPTY]
+        possible_moves = [key for (key, value) in b1.board.items() if value != SIGN_EMPTY]
 
         for i in possible_moves:
-            b1[i] = SIGN_CIRCLE
+            b1.board[i] = SIGN_CIRCLE
             if b1.check_for_win(SIGN_CIRCLE):
-                return b1.insert(i, SIGN_CIRCLE)
-            b1[i] = SIGN_CROSS
+                return i
+            b1.board[i] = SIGN_CROSS
             if b1.check_for_win(SIGN_CROSS):
                 return i
 
@@ -68,6 +75,9 @@ class ComputerPlayer(Player):
         if len(edges_open) > 0:
             return random
 
+    @property
+    def sign(self):
+        return self._sign
 
 class OccupiedFieldError(Exception):
     pass
@@ -104,7 +114,6 @@ class Board:
                 return False
         return True
 
-    # TODO: is_line
     def check_for_win(self, sign):
         if self._board[0] == sign and self._board[1] == sign and self._board[2] == sign:
             return True
@@ -143,6 +152,7 @@ class Game:
     def run(self):
         player = self._player1
         while True:
+            print(self._board)
             pos = player.get_position(self._board)
             self._board.insert(pos, player.sign)
             if self._board.check_for_win(player.sign):
@@ -156,14 +166,13 @@ class Game:
 
 
 def get_players():
-
     choice = input("Select game mode. Press '1' for single player mode and '2' for two players mode.")
 
     while choice not in ('1', '2'):
-            print("Not an appropriate choice.")
-            choice = input("Select game mode. Press '1' for single player mode and '2' for two players mode.")
+        print("Not an appropriate choice.")
+        choice = input("Select game mode. Press '1' for single player mode and '2' for two players mode.")
 
-    #import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
 
     if choice == '1':
         name1 = input("Tell me your name: ")
@@ -174,10 +183,14 @@ def get_players():
         return HumanPlayer(name1, SIGN_CROSS), HumanPlayer(name2, SIGN_CIRCLE)
 
 
+# Game(Board.board, player1, player2)
+
+#b = Board()
+
 def main():
     player1, player2 = get_players()
-    game = Game(Board.board, player1, player2)
+    board = Board()
+    game = Game(board, player1, player2)
     game.run()
-
 
 main()
