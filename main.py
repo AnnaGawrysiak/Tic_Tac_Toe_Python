@@ -45,15 +45,18 @@ class ComputerPlayer(Player):
         self._sign = SIGN_CIRCLE
 
     def get_position(self, b1):
-        possible_moves = [key for (key, value) in b1.board.items() if value != SIGN_EMPTY]
+        possible_moves = [key for (key, value) in b1.board.items() if value == SIGN_EMPTY]
 
         for i in possible_moves:
             b1.board[i] = SIGN_CIRCLE
             if b1.check_for_win(SIGN_CIRCLE):
+                b1.board[i] = SIGN_EMPTY
                 return i
             b1.board[i] = SIGN_CROSS
             if b1.check_for_win(SIGN_CROSS):
+                b1.board[i] = SIGN_EMPTY
                 return i
+            b1.board[i] = SIGN_EMPTY
 
         corners_open = []
 
@@ -73,7 +76,7 @@ class ComputerPlayer(Player):
                 edges_open.append(i)
 
         if len(edges_open) > 0:
-            return random
+            return random.choice(edges_open)
 
     @property
     def sign(self):
@@ -163,6 +166,7 @@ class Game:
                 player = self._player2
             else:
                 player = self._player1
+            print('\n')
 
 
 def get_players():
